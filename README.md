@@ -81,47 +81,15 @@ Depth = Water depth (m)
 Turb = Turbidity
 
 ---
-
-## Notes & Assumptions
-
-* Missing values are removed before analysis.
-* Monthly and daily averages ignore NA values (`na.rm = TRUE`).
-* Summer is defined as **April through August**.
-* Input data structure must remain consistent with original format.
-
----
-
-## Output
-
-* Cleaned datasets:
-
-  * Daily averages
-  * Monthly averages
-  * Summer subset
-* 16 visualizations for exploratory data analysis
+Other Notes
+Missing values are removed before analysis. 
+Monthly and daily averages ignore NA values (`na.rm = TRUE`). 
+Summer is defined as April through August. 
+Input data structure must remain consistent with original format.
+Output should be cleaned datasets that show Daily averages, Monthly averages, and a Summer Averaged subset. Also 16 visualizations for preliminary data analysis
+Must replace the CSV file path in read_csv(). The script is designed to be reusable across monitoring sites with minimal modification.
 
 ---
-
-## Usage
-
-1. Replace the CSV file path in `read_csv()`
-2. Run the script in R
-3. View generated plots in the plotting window or export as needed
-
----
-
-## Summary
-
-This script provides a complete pipeline for:
-
-* Cleaning raw seawater monitoring data
-* Aggregating across time scales
-* Visualizing seasonal and long-term trends
-* Exploring relationships between environmental variables
-
-It is designed to be reusable across monitoring sites with minimal modification.
-
-
 
 
 
