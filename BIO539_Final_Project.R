@@ -1,4 +1,4 @@
-
+#### R Script for Cleaning and Graphing FSUCML Seawater Monitoring System Data ####
 
 #### Reading in raw FSUCML Seawater Monitoring System Data and cleaning it up to get daily water variable averages, monthly water variable averages, and summer month only variable averages ####
 
