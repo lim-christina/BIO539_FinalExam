@@ -1,10 +1,11 @@
 
 
-#### Reading in raw FSUCML Seawater Monitoring System Data and cleaning it up to get daily water variable averages, monthly water variable averages, and summer month only variable averages
+#### Reading in raw FSUCML Seawater Monitoring System Data and cleaning it up to get daily water variable averages, monthly water variable averages, and summer month only variable averages ####
 
-### ONLY CHANGE TO SCRIPT IS CSV FILE BEING READ INTO READ_CSV(). FORMATTING SHOULD NOT NEED TO BE CHANGED ASSUMING RAW CSV FILE WAS NOT CHANGED. FILE SHOULD BE SIMILIAR TO CMLAHWQ_20230629-20250501.csv
+### ONLY CHANGE TO SCRIPT IS CSV FILE BEING READ INTO READ_CSV(). FORMATTING SHOULD NOT NEED TO BE CHANGED ASSUMING RAW CSV FILE WAS NOT CHANGED. FILE SHOULD BE SIMILIAR TO CMLAHWQ_20230629-20250501.csv ####
 
 water_edit<-read_csv("FSUCML Seawater Monitoring System Data/CMLAHWQ_20230629-20250501.csv", skip=2)
+
 #after read_csv() insert FSUCML Water Data CSV for whatever site being analyzed
 #reads in water data csv file and skips the first 2 rows and start reading from third row which contains headers, saved in water_edit variable
 
@@ -37,12 +38,14 @@ unique(daily_average_values_cleaned$day)
 
 
 monthly_averages_by_year<-daily_average_values_cleaned |> group_by(month,year) |> summarise(across(-c(day,date),~ mean(.x, na.rm = TRUE))) 
+
 #takes daily_average_values_cleaned groups by month and year (May 2023) and then averages within the groups to get monthly average for each water variable. Excludes the day and date columns and ignores missing values.  
 
 summer_months_averages<-monthly_averages_by_year |>filter(month>=4 & month<=8) |>  group_by(month)
+
 #subsets out from the monthly_averages_by_year tibble and gets the averages for summer months, these are april/fourth month up to and including august/eight month.
 
-#### Summer months only water variable data line graphs
+#### Summer months only water variable data line graphs ####
 
 summer_months_averages_pivot<- summer_months_averages |> pivot_longer(cols=-c(month,year), names_to = "Water_Variable", values_to = "Value") 
 #makes a longer pivot table of the summer_months_averages data to make it easier to use for later graphing
@@ -53,7 +56,7 @@ summer_months_averages_pivot |> ggplot(aes(x=month,y=Value, color=factor(year)))
 #plots the summer_months_averages_pivot tibble with months on the x axis and the variable ranges on y, each year is a different color. Facet wrap by different variables, scales are independent on y axis for each variable. Relabels the graphs to be more descriptive, relabel the x axis label is Month, y axis is Water Variable value and instead of numbers for months, it is the actual name of the summer month
 
 
-#### Monthly water variable values line graph
+#### Monthly water variable values line graph ####
 monthly_averages_by_year_pivot<-monthly_averages_by_year |> pivot_longer(cols=-c(month,year), names_to = "Water_Variable", values_to = "Value") 
 #makes a longer pivot table of the monthly_averages_by_year data to make it easier to use for later graphing
 
@@ -62,7 +65,7 @@ monthly_averages_by_year_pivot |>mutate(date = as.Date(paste(year, month, 1, sep
 
 #first mutates monthly_averages_by_year_pivot table by joining month and year columns together to get a date column that is 2023-06. Then plot by date, water variable value and color by year. This allows the plots to be graphed in chronological order and be more cohesive to visualize since 2023 and 2025 have partial data for their years. Date is on the x axis and the variable ranges on y, each year is a different color. Facet wrap by different variables, scales are independent on y axis for each variable. Relabels the graphs to be more descriptive, relabel the x axis label to be Date(Year-Month), y axis is Water Variable values.
 
-##### Daily water variable values Boxplots
+##### Daily water variable values Boxplots ####
 
 daily_average_values_pivot<-daily_average_values_cleaned |> pivot_longer(cols = c(Temp, SpCond, pH, Sal, Depth, Turb, DO_pct, DO_mgl), names_to = "Water_Variable", values_to = "Value")
 #takes the daily_average_values_cleaned data and pivots based on listed water variable columns and their values, keeps the date, year, month, and day columns as is.
@@ -71,13 +74,13 @@ daily_average_values_pivot |>filter(month>=4 & month<=8) |>  ggplot(aes(x=factor
 
 #takes the daily_average_values_pivot data and filters for summer months (4:8) and makes boxplots of summer months across years faceted by each water variable. Shows the range of values for each variable at each summer months across different years. Facet wrap by different water variables, scales are independent on y axis for each variable. Relabels the graphs to be more descriptive, relabel the x axis label to be Summer Months, y axis is Water Variables values.
 
-#### Water Variable Data, Daily Values
+#### Water Variable Data, Daily Values ####
 
 daily_average_values_pivot |> ggplot(aes(x=date,y=Value,color=factor(year)))+geom_line()+ facet_wrap(~Water_Variable,scales="free_y",labeller=labeller(Water_Variable=c(Temp="Temp(°C)", Sal="Salinity(ppt)", pH="pH", DO_mgl= "DO (mg/L)", SpCond="Specific Conductivity(mS/cm)", Depth="Depth(m)", DO_pct="DO_pct(percent saturation)", Turb="Turbidity")))+ labs(color="Year")+labs(x= "Date(Year-Month-Day",fill="Year", y="Water Variables")
 
 #takes daily_average_values_pivot data and plots each daily date's water variable value as a line graph. Date(year-month-day) is on the x axis and the variable ranges on y, each year is a different color. Facet wrap by different variables, scales are independent on y axis for each variable. Relabels the graphs to be more descriptive, relabel the x axis label to be Date(Year-Month), y axis is Water Variable values.
 
-####Scatterplot comparisons
+#### Scatterplot comparisons ####
 
 daily_average_values_cleaned |> ggplot(aes(x=Temp, y=DO_mgl, color=factor(year)))+geom_point()+geom_smooth(method = "lm", se=T)+facet_wrap(~year)+labs(x="Temperature(°C)", y="DO(mg/L)")
 #scatter plot of temperature and DO data faceted by year for each day from daily_average_values_cleaned data
@@ -91,7 +94,7 @@ daily_average_values_cleaned |> ggplot(aes(x=Temp, y=pH, color=factor(year)))+ge
 daily_average_values_cleaned |> ggplot(aes(x=Sal, y=pH, color=factor(year)))+geom_point()+geom_smooth(method = "lm", se=T)+facet_wrap(~year)+labs(x="Salinity(ppt)", y="pH")
 #scatter plot of Salinity and pH data faceted by year for each day from daily_average_values_cleaned data
 
-####### Heat maps
+###### Heat maps #####
 
 monthly_averages_by_year |> ggplot(aes(x=factor(year), y=month,fill=Temp))+geom_tile()+ scale_y_continuous(breaks = 1:12,labels = month.name)+ scale_fill_gradient(low= "lightpink", high="darkred")+labs(x="Year", y="Months", fill="Temperature(°C)")
 #heat map of temperature for each of the 12 months compared across years 2023-2025 from monthly_averages_by_year data
@@ -123,7 +126,7 @@ summer_months_averages |> ggplot(aes(x=factor(year), y=month,fill=pH))+geom_tile
 
 
 
-#### total of 16 graphs produced
+#### total of 16 graphs produced ####
 
 
 
