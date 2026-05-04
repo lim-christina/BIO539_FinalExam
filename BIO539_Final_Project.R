@@ -3,6 +3,8 @@
 
 ### ONLY CHANGE TO SCRIPT IS CSV FILE BEING READ INTO READ_CSV(). FORMATTING SHOULD NOT NEED TO BE CHANGED ASSUMING RAW CSV FILE WAS NOT CHANGED. FILE FORMAT SHOULD BE SIMILIAR TO CMLAHWQ_20230629-20250501.csv
 
+-----------start script below------------
+
 water_edit<-read_csv("~/Downloads/FSUCML Seawater Monitoring System Data/CMLAHWQ_20230629-20250501.csv", skip=2)
 #after read_csv() insert FSUCML Water Data CSV for whatever site being analyzed
 #reads in water data csv file and skips the first 2 rows and start reading from third row which contains headers, saved in water_edit variable
