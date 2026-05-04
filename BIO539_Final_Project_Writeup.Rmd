@@ -1,0 +1,98 @@
+---
+title: "BIO539 Final Project Writeup"
+author: "Christina Lim"
+date: "2026-05-04"
+output: html_document
+---
+**Final Project Wrap Up: Analysis of FSUCML Water Quality Monitoring Data**
+
+**Introduction**
+
+Understanding the variations in water quality is essential for evaluation marine ecosystems, identifying environmental trends, and providing an overall picture of the present and future status of marine areas. The Florida State University Coastal and Marine Laboratory (FSUCML) seawater monitoring program is one of the ways we can get high frequency water quality measurements from various sites in the Florida area and this information is also publicly available. The data set that is used in the current analysis is from end of June 2023 to the beginning of May 2025 though as long as the data is from the FSUCML monitoring program, any range of dates will work for the analysis. 
+
+**Methods**
+
+Water quality data was obtained from the FSUCML via an inquiry form and the raw data came as a csv file. The monitoring time range started from 6.29.2023 and ended 5.1.2025 and included measurements recorded in 15 minute intervals. The variables that were measured included  temperature (Temp), salinity (Sal), dissolved oxygen measured in mg/L and percent oxygen saturation (DO_mgl and DO_pct), pH, specific conductivity (SpCond), depth (Depth), and turbidity (Turb). In this case, the file was called CMLAHWQ_20230629-20250501.csv and contains water monitoring data for the Alligator Harbor site, which lies just under the Florida panhandle. R was used clean up and analysis this data and this script for the water quality data is intended to be run in R.
+This file was then read into R using read_csv( ) function, but because the data’s header columns are in the third row, we skip the first two rows as they do not contain relevant information for analysis. For analysis of a different csv file, as long as the file was not altered, it can be read into the R script in the same way as below.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+
+water_edit<-read_csv("~/Downloads/FSUCML Seawater Monitoring System Data/CMLAHWQ_20230629-20250501.csv", skip=2)
+```
+
+The data was then cleaned up and converted to daily averages to reduce noise from the 15 minute interval measurements and to better see long term trends in the data. To this, we needed to parse out the DateTimeStamp column which contained both time and date of the measurements at time of the recording. Once this was done, we grouped all the data by the overall day that was recorded and then average the values across all columns that containted numerical data, removing any rows that did not have any values. This gave us the daily averages of all water quality variables for our data set, reducing our observations from about 64000 to 670.
+
+
+```{r}
+
+daily_average_values <- water_edit |> mutate(DateTimeStamp = parse_date_time(DateTimeStamp, orders = c("mdy HM", "mdy HMS", "mdy")),date = as.Date(DateTimeStamp)) |> group_by(date) |> summarise(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)))
+
+daily_average_values<-daily_average_values |> drop_na()
+
+daily_average_values<-daily_average_values |> select(-Historical,-ProvisionalPlus)
+
+daily_average_values_cleaned<- daily_average_values |> mutate(date=ymd(date), year=year(date), month=month(date), day=day(date))
+```
+
+
+To further clean up the data set, columns like Historical and Provisional Plus were removed as they did not contain informative water quality data and we were left with daily_average_values_cleaned as our cleaned data set to use for analysis.
+
+While we have daily values, we wanted to zoom out and see what larger trends we could visualize from the cleaned data set so we aggregated the daily averages by month to get monthly averages across all the water variables. Additionally, because we're interested in observing the trends during the warmer late spring to late summer months of April to August, we took the monthly averages and subset out just the values for those summer months. The two subsets were then pivoted into long format to make it easier to plot with. 
+
+
+```{r}
+monthly_averages_by_year<-daily_average_values_cleaned |> group_by(month,year) |> summarise(across(-c(day,date),~ mean(.x, na.rm = TRUE))) 
+
+monthly_averages_by_year_pivot<-monthly_averages_by_year |> pivot_longer(cols=-c(month,year), names_to = "Water_Variable", values_to = "Value") 
+
+summer_months_averages<-monthly_averages_by_year |>filter(month>=4 & month<=8) |>  group_by(month)
+
+summer_months_averages_pivot<- summer_months_averages |> pivot_longer(cols=-c(month,year), names_to = "Water_Variable", values_to = "Value") 
+```
+
+
+From the above, daily and monthly visualizations were plotted to look at trends in water quality variables. The summer data set averages were plotted to look at the summer seasonal patterns while the monthly averages were plotted for the three year range to see the temporal changes more broadly. 
+
+Box plots during the summer months were also plotted to visualize the variability between the months and years of each water quality variable. 
+
+Scatter plots with linear regressions were graphed to explore the relationships between certain water variables. These included Temperature vs. Dissolved Oxygen, Temperature vs. Salinity, Temperature vs. pH, and Salinity vs. pH, all faceted by year to see if there were also any seasonal or yearly correlations. 
+
+Heat maps were graphed for monthly and summer month only data set focusing on the temperature, salinity, pH, and DO variables to visualize variability between years and within a certain seasonal range. 
+
+
+**Results**
+
+During the summer months (April–August), we can observe there is consistently higher water temperatures, with peaks seen around July while dissolved oxygen (DO_mgl),and pH showed an inverse relationship with temperature, decreasing during the summer months. However if we look at the water quality variables from each date, rather than the monthly averages, there is an interesting sudden downward spike in pH, salinity, and turbidity around mid August, indicating the monitoring site likely experienced a brief surge in freshwater input. No major hurricanes were recorded to have passed through Alligator Harbor where the data is taken from so we hypothesize the spike was a result of a series of thunderstorms than occurred near the area that brought that sudden and intense rush of fresh water.
+
+Our year-to-year comparisons revealed slight differences in temperature, salinity, and DO among 2023, 2024, and 2025. The heat maps generated show these differences, with 2023 showing slightly higher temperatures in June–August compared to subsequent years. Salinity showed slight differences as well with the summer months in 2025 showing higher ppt values then the previous two years. When looking at the daily scatter plot relationships between pH, temperature, dissolved oxygen, and salinity, there were some variation in trends throughout the three years. Temperature and dissolved oxygen had a clear, strong negative correlation with each other, as temperature increased, DO decreased. This was also seen with temperature and pH. However some other correlations were less clear throughout the years. The relationship between temperature and salinity saw a slightly positive correlation in 2023 but a negative one in 2024 and between salinity and pH, there was a positive correlation in 2023 but a negative one in 2024. 
+
+
+Box plots of daily values during summer months revealed moderate variability in all water quality parameters. Temperature and DO displayed the largest ranges, while pH and salinity remained relatively stable other than the freshwater spike that occurred mid-August that is responsibly for the larger August range in 2024.
+
+It is important to note that because the data set was collected starting in June of 2023 and ended in May of 2025, the data for 2023 and 2025 is not as complete as 2024 due to the missing months when there was no monitoring data available. So while water quality variable from months in 2023 and 2024 and 2024 and 2025 can be compared with each other, it is more difficult to see how the data compares between 2023 and 2025 only.
+
+Computational analysis using R provided a good framework for summarizing high-frequency water quality data through the aggregation to daily and monthly averages. Visualization techniques including line graphs, boxplots, scatterplots, and heat maps allowed for better observation of any patterns and correlations as a result of temporal or seasonal changes. It also allowed us to observe any anomolies as a result of stochastic weather events such as the freshwater spike that was observed in mid August of 2024. The methods described here and the subsequent provided complete R script allows for a flexible, reusable framework to use on other FSUCML monitoring program data at various other time points and monitoring sites.
+
+
+**AI Disclaimer**
+
+Generative AI usage for this assignment was predominantly limited to code debugging. Most of the analysis and clean up was adapted from Exam 1 so AI was not asked to create code but rather to troubleshoot errors or to fix minor aesthetic issues with the graphs. Examples include asking AI to help center captions on the graph, identify gradient colors that could be used for the heatmaps, and how to relabel the faceted graphs to be more descriptive using labeller() function.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
