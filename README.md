@@ -7,6 +7,8 @@ This script processes raw data from the FSUCML Seawater Monitoring System and pr
 Input Requirements:
 The script expects a CSV file formatted similarly to CMLAHWQ_20230629-20250501.csv and the only required modification in the script is updating the file path in the first line of read_csv("FSUCML Seawater Monitoring System Data/your_file.csv", skip=2) The first two rows of the CSV are skipped as the third row must contain column headers. No additional formatting changes should be necessary if the file structure is consistent.
 
+To test script, CMLAHWQ_20230629-20250501.csv file has been added to repository as a test file.
+
 ---
 Workflow Summary:
 1. Data Import
