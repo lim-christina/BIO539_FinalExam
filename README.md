@@ -84,11 +84,17 @@ Turb = Turbidity
 ---
 Other Notes:
 Data was collected from June 2023 to May 2025. Therefore, it is missing data from the first six months of 2023 and the last six months of 2025 due to the nature of the monitoring time range. 
+
 Missing values are removed before analysis. 
+
 Monthly and daily averages ignore NA values (`na.rm = TRUE`). 
+
 Summer is defined as April through August. 
+
 Input data structure must remain consistent with original format.
+
 Output should be cleaned datasets that show Daily averages, Monthly averages, and a Summer Averaged subset. Also 16 visualizations for preliminary data analysis
+
 Must replace the CSV file path in read_csv(). The script is designed to be reusable across monitoring sites with minimal modification.
 
 ---
