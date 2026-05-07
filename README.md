@@ -10,12 +10,13 @@ The script expects a CSV file formatted similarly to CMLAHWQ_20230629-20250501.c
 ---
 Workflow Summary:
 1. Data Import
+   
 The script reads the CSV file using `read_csv()` , skips metadata rows and stores data in `water_edit`
 
 2. Daily Averages
 
 It then converts `DateTimeStamp` into date format, groups data by date, calculates mean values for all numeric variables and removes missing values and unnecessary columns (`Historical`, `ProvisionalPlus`). These columns will not be used at all.
-This outputs variable: daily_average_values_cleaned`
+This outputs variable: daily_average_values_cleaned
 
 3. Date Feature Extraction
 
@@ -81,7 +82,8 @@ Depth = Water depth (m)
 Turb = Turbidity
 
 ---
-Other Notes
+Other Notes:
+Data was collected from June 2023 to May 2025. Therefore, it is missing data from the first six months of 2023 and the last six months of 2025 due to the nature of the monitoring time range. 
 Missing values are removed before analysis. 
 Monthly and daily averages ignore NA values (`na.rm = TRUE`). 
 Summer is defined as April through August. 
